@@ -29,6 +29,7 @@ REDIRECT_URI = 'http://localhost:8080/redirect'
 
 @route('/revoke_token', method="post")
 def revoke_token():
+	"""To revoke the oauth token"""
 	global database
 	user_id = request.forms.get('user_id')
 	
@@ -49,7 +50,7 @@ def revoke_token():
 
 
 class User_Object(object):
-	"""docstring for User_Object"""
+	"""User object to store all session particular data and saved user data including oauth"""
 
 	def __init__(self, credentials, user_document):
 		super(User_Object, self).__init__()
@@ -97,28 +98,28 @@ def redirect_page():
 	user_document = users_service.userinfo().get().execute()
 
 
-	if Test_Is_Current_User(database, user_document['id']) == False:
+	if Test_Is_Current_User(database, str(user_document['id'])) == False:
 		#is not currently a user (first time), so create the user object and set the required, a query counter will be auto created
 		user_object = User_Object(credentials, user_document)
 
 
 	else:
 		#this user has previously signed in so load the user object and make sure to change the credentials, document, AND COOKIE VALUE accordingly
-		user_object = pickle.loads(database.get(user_document['id']))
+		user_object = pickle.loads(database.get(str(user_document['id'])))
 
 		user_object.credentials = credentials
 		user_object.user_document = user_document
-		user_object.signed_in = True
-		user_object.client_cookie_value = str(random.randint(0, 100000))
+	
+	user_object.signed_in = True
+	user_object.client_cookie_value = str(random.randint(0, 100000))
 
 
 	display_html = home_process(user_object)
 
 
 	#store the user object back into the database
-	database.set(user_document['id'], pickle.dumps(user_object))
-
-	response.set_cookie('bucket_user_id', user_object.user_document['id'])
+	database.set(str(user_document['id']), pickle.dumps(user_object))
+	response.set_cookie('bucket_user_id', str(user_object.user_document['id']))
 	response.set_cookie('bucket_user_value', user_object.client_cookie_value)
 
 	return display_html
@@ -137,7 +138,6 @@ def Sign_Out():
 
 def Sign_Out_User(user_id):
 	"""This is called when the user clicks the sign out button, no revoke of credentials"""
-
 	global database
 	user_object = Load_User_Object(database, user_id)
 
@@ -205,8 +205,9 @@ def home_process(user_object):
 
 @route('/', method='GET')
 def Home_Page():
-	"""FOR NOW: bucket_user_id is google id"""
+	"""FOR NOW: bucket_user_id is google id, this page is where all requests not pertaining to oauth go"""
 	if Check_Cookies() == True:
+
 		# from here will remain on the /redirect page until sign out, if the user enters the / uri, and still loged in, will also redirect
 		query_string = request.query.keywords
 		
@@ -217,7 +218,7 @@ def Home_Page():
 		user_object.pending_submit = request.query.submit_button
 		
 		#store the user object back into the database
-		database.set(user_object.user_document['id'], pickle.dumps(user_object))
+		database.set(str(user_object.user_document['id']), pickle.dumps(user_object))
 
 		return login()
 	#user doesnt exist or the value was wrong, so is not signed in on this browser
@@ -353,6 +354,7 @@ def Increment_The_Counter_Return_Results(words):
 
 
 def Check_Cookies():
+	"""This checks the browser's cookies against existing user and testing that the user_random_value is correct"""
 	global database
 	user_id = request.get_cookie("bucket_user_id")
 	if user_id:
