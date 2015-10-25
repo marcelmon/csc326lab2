@@ -223,10 +223,11 @@ def Home_Page():
 	#user doesnt exist or the value was wrong, so is not signed in on this browser
 	else:
 		query_string = request.query.keywords
-		if query_string == None:
-			return template(home_template, logged_in=False, user_id=-1, user_email=-1, results=None, top_20=None, query_string=None)
-		results = Process_Query_String(query_string)
-		return template(home_template, logged_in=False, user_id=-1, user_email=-1, results=results, top_20=None, query_string=None)
+		if query_string == None or query_string == '':
+			return template(home_template, results=None, query_string=None)
+
+		results = Process_Query_String(query_string).iteritems()
+		return template(home_template, results=results, query_string=query_string)
 
 
 
