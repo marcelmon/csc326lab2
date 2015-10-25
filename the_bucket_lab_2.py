@@ -434,13 +434,13 @@ home_template = '<html>'+ bucket_icon_style + """
 		
 	</div>
 
-	<div>
+	<a href="/">
 		<i class=my-icon style=margin-right:65%;float:right><i></i><i></i><i></i></i>
 
 		<text style=font-size:50px;font-weight:bold;color:lightblue;margin-left:40%;float:left>
 			The Bucket
 		</text>
-	</div>
+	</a>
 
 	<div style=top:100%;position:relative;clear:both;>
 		<div align=center>
@@ -512,13 +512,13 @@ user_page = '<html>'+ bucket_icon_style + """
 		</div>
 		</div>
 	</div>
-	<div>
+	<a href="/">
 		<i class=my-icon style=margin-right:65%;float:right><i></i><i></i><i></i></i>
 
 		<text style=font-size:50px;font-weight:bold;color:lightblue;margin-left:40%;float:left>
 			The Bucket
 		</text>
-	</div>
+	</a>
 
 	<div style=top:100%;position:relative;clear:both;>
 		<div align=center>
